@@ -12,14 +12,18 @@ import (
 	"s3-mini/internal/network"
 	"syscall"
 
-
 	"github.com/spf13/cobra"
 )
 
-// rootCmd represents the base command when called without any subcommands
+var (
+	storagePath string
+	keyPath     string
+)
+
+// rootCmd represents the base command
 var rootCmd = &cobra.Command{
-	Use:   "start",
-	Short: "Starts the s3-mini P2P daemon",
+	Use:   "s3-mini",
+	Short: "A P2P file transfer tool",
 }
 
 var startCmd = &cobra.Command{
@@ -27,14 +31,23 @@ var startCmd = &cobra.Command{
 	Short: "Starts the s3-mini P2P daemon",
 	Run: func(cmd *cobra.Command, args []string) {
 		ctx := context.Background()
-		h, err := network.NewNode(ctx, 0)
+
+		if err := os.MkdirAll(storagePath, 0755); err != nil {
+			log.Fatalf("Could not create storage directory: %v", err)
+		}
+
+		h, err := network.NewNode(ctx, 0, keyPath)
 		if err != nil {
 			log.Fatalf("Failed to create node: %v", err)
 		}
 		defer h.Close()
+
 		network.PrintNodeInfo(h)
-		network.SetStreamHandler(h)
+		
+		network.SetStreamHandler(h, storagePath) 
+
 		network.NewDiscoveryService(h)
+
 		ch := make(chan os.Signal, 1)
 		signal.Notify(ch, syscall.SIGINT, syscall.SIGTERM)
 		<-ch
@@ -42,8 +55,7 @@ var startCmd = &cobra.Command{
 	},
 }
 
-// Execute adds all child commands to the root command and sets flags appropriately.
-// This is called by main.main(). It only needs to happen once to the rootCmd.
+// Execute adds all child commands to the root command
 func Execute() {
 	err := rootCmd.Execute()
 	if err != nil {
@@ -52,15 +64,7 @@ func Execute() {
 }
 
 func init() {
-	// Here you will define your flags and configuration settings.
-	// Cobra supports persistent flags, which, if defined here,
-	// will be global for your application.
-
-	// rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.s3-mini.yaml)")
-
-	// Cobra also supports local flags, which will only run
-	// when this action is called directly.
 	rootCmd.AddCommand(startCmd)
+	startCmd.Flags().StringVar(&storagePath, "store", "./storage", "Directory to store received files")
+	startCmd.Flags().StringVar(&keyPath, "keys", "./keys", "Directory to store identity keys")
 }
-
-
