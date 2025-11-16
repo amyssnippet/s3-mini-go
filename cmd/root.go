@@ -1,30 +1,44 @@
 /*
-Copyright © 2026 NAME HERE <EMAIL ADDRESS>
-
+Copyright © 2026 NAME HERE <amolyadav6125@gmail.com>
 */
 package cmd
 
 import (
+	"context"
+	"fmt"
+	"log"
 	"os"
+	"os/signal"
+	"s3-mini/internal/network"
+	"syscall"
+
 
 	"github.com/spf13/cobra"
 )
 
-
-
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
-	Use:   "s3-mini",
-	Short: "A brief description of your application",
-	Long: `A longer description that spans multiple lines and likely contains
-examples and usage of using your application. For example:
+	Use:   "start",
+	Short: "Starts the s3-mini P2P daemon",
+}
 
-Cobra is a CLI library for Go that empowers applications.
-This application is a tool to generate the needed files
-to quickly create a Cobra application.`,
-	// Uncomment the following line if your bare application
-	// has an action associated with it:
-	// Run: func(cmd *cobra.Command, args []string) { },
+var startCmd = &cobra.Command{
+	Use:   "start",
+	Short: "Starts the s3-mini P2P daemon",
+	Run: func(cmd *cobra.Command, args []string) {
+		ctx := context.Background()
+		h, err := network.NewNode(ctx, 0)
+		if err != nil {
+			log.Fatalf("Failed to create node: %v", err)
+		}
+		defer h.Close()
+		network.PrintNodeInfo(h)
+		network.NewDiscoveryService(h)
+		ch := make(chan os.Signal, 1)
+		signal.Notify(ch, syscall.SIGINT, syscall.SIGTERM)
+		<-ch
+		fmt.Println("\nShutting down s3-mini...")
+	},
 }
 
 // Execute adds all child commands to the root command and sets flags appropriately.
@@ -45,7 +59,7 @@ func init() {
 
 	// Cobra also supports local flags, which will only run
 	// when this action is called directly.
-	rootCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+	rootCmd.AddCommand(startCmd)
 }
 
 

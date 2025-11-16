@@ -34,3 +34,14 @@ func NewNode(ctx context.Context, port int) (host.Host, error) {
 
 	return node, nil
 }
+
+
+func PrintNodeInfo(h host.Host) {
+	fmt.Printf("s3 mini node starting\n")
+	fmt.Printf("ID: %s\n", h.ID().String())
+	fmt.Println("Addresses: ")
+	for _, addr := range h.Addrs() {
+		fmt.Printf(" - %s/p2p/%s\n", addr, h.ID())
+	}
+	fmt.Println("started")
+}
