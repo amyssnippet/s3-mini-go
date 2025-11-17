@@ -33,6 +33,7 @@ var startCmd = &cobra.Command{
 		}
 		defer h.Close()
 		network.PrintNodeInfo(h)
+		network.SetStreamHandler(h)
 		network.NewDiscoveryService(h)
 		ch := make(chan os.Signal, 1)
 		signal.Notify(ch, syscall.SIGINT, syscall.SIGTERM)
