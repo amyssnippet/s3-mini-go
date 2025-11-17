@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"net/textproto"
 	"os"
 	"path/filepath"
 	"s3-mini/internal/core"
@@ -34,7 +33,7 @@ func SetStreamHandler(h host.Host) {
 		fmt.Printf("File: %s\n", meta.Name)
 		fmt.Printf("Size: %d\n", meta.Size)
 
-		if _, err := rw.WriteString("OK\n"); err := nil {
+		if _, err := rw.WriteString("OK\n"); err != nil {
 			fmt.Println("Error Sending ACK")
 			return
 		} 
