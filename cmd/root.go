@@ -46,6 +46,10 @@ var startCmd = &cobra.Command{
 		
 		network.SetStreamHandler(h, storagePath) 
 
+		if err := network.SetupDHT(ctx, h); err != nil {
+			log.Printf("DHT error: %v", err)
+		}
+
 		network.NewDiscoveryService(h)
 
 		ch := make(chan os.Signal, 1)
