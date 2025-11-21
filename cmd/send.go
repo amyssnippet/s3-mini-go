@@ -29,6 +29,10 @@ var sendCmd = &cobra.Command{
         }
         defer h.Close()
 
+		if err := network.SetupDHT(ctx, h); err != nil {
+			log.Print("DHT error: %v", err)
+		}
+
         network.NewDiscoveryService(h)
 
         var targetID peer.ID
