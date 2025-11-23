@@ -6,6 +6,7 @@ type FileMetadata struct {
 	Size int64
 	Hash string
 	Extension string
+	Password string
 }
 
 type TransferStatus struct {
