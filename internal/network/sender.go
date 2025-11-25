@@ -16,7 +16,7 @@ import (
 )
 
 
-func SendFile(h host.Host, peerIdStr string, filePath string) error {
+func SendFile(h host.Host, peerIdStr string, filePath string, password string) error {
 	ctx := context.Background()
 
 	file, err:= os.Open(filePath)
@@ -48,6 +48,7 @@ func SendFile(h host.Host, peerIdStr string, filePath string) error {
 		Name: filepath.Base(filePath),
 		Size: fileInfo.Size(),
 		ID: "random-uuid",
+		Password: password,
 	}
 
 	if err := json.NewEncoder(rw).Encode(meta); err != nil {
@@ -70,7 +71,7 @@ func SendFile(h host.Host, peerIdStr string, filePath string) error {
     if err != nil {
         return err
     }
-	
+
     fmt.Printf("Debug: Written %d bytes to buffer\n", n)
 
 	if err := rw.Flush(); err != nil {
