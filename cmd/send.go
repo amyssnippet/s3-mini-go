@@ -13,6 +13,8 @@ import (
     "github.com/spf13/cobra"
 )
 
+var sendKey string
+
 
 var sendCmd = &cobra.Command{
     Use:   "send [peerID_or_Multiaddr] [file]",
@@ -65,7 +67,7 @@ var sendCmd = &cobra.Command{
             time.Sleep(3 * time.Second) 
         }
         fmt.Println("Starting transfer...")
-        err = network.SendFile(h, targetID.String(), filePath)
+        err = network.SendFile(h, targetID.String(), filePath, sendKey)
         if err != nil {
             log.Fatalf("Send failed: %v", err)
         }
@@ -74,4 +76,5 @@ var sendCmd = &cobra.Command{
 
 func init() {
 	rootCmd.AddCommand(sendCmd)
+	sendCmd.Flags().StringVar(&sendKey, "password", "", "API Key for access")
 }
