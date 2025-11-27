@@ -9,7 +9,10 @@ import (
 	"log"
 	"os"
 	"os/signal"
+	"path/filepath"
 	"s3-mini/internal/network"
+	"s3-mini/internal/security"
+	"s3-mini/internal/storage"
 	"syscall"
 
 	"github.com/spf13/cobra"
@@ -42,9 +45,17 @@ var startCmd = &cobra.Command{
 		}
 		defer h.Close()
 
+		auth, err := security.NewKeyStore(filepath.Join(keyPath, "access_keys.json"))
+
+		if err != nil {
+			log.Fatal(err)
+		}
+
 		network.PrintNodeInfo(h)
+
+		store:= storage.NewStore(storagePath)
 		
-		network.SetStreamHandler(h, storagePath) 
+		network.SetStreamHandler(h, auth, store) 
 
 		if err := network.SetupDHT(ctx, h); err != nil {
 			log.Printf("DHT error: %v", err)
