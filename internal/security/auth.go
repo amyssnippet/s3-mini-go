@@ -48,6 +48,10 @@ func (ks *KeyStore) IsAllowed(apiKey string, requiredPerm string) bool {
 		return true
 	}
 
+	if role == PermWrite && requiredPerm == PermRead {
+		return true
+	}
+
 	return role == requiredPerm
 }
 
