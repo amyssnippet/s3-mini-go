@@ -26,11 +26,14 @@ func SetStreamHandler(h host.Host, auth *security.KeyStore, store *storage.Store
 		}
 
 		if !auth.IsAllowed(meta.Password, security.PermWrite) {
-			fmt.Printf("⚠ Unauthorized access attempt from %s\n", s.Conn().RemotePeer())
+			fmt.Printf("Unauthorized access attempt from %s\n", s.Conn().RemotePeer())
 			rw.WriteString("ERROR: Invalid API Key\n")
 			rw.Flush()
 			return
 		}
+
+		fmt.Printf("incoming connection from: %s@%s\n", meta.SenderName, meta.SenderOS)
+
 		fmt.Printf("Incoming File: %s (Auth: OK)\n", meta.Name)
 		rw.WriteString("OK\n")
 		rw.Flush()
