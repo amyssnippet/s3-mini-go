@@ -7,12 +7,17 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"net"
 	"os"
 	"os/signal"
+	"os/user"
 	"path/filepath"
+	"runtime"
+	"s3-mini/internal/api"
 	"s3-mini/internal/network"
 	"s3-mini/internal/security"
 	"s3-mini/internal/storage"
+	"strings"
 	"syscall"
 
 	"github.com/spf13/cobra"
@@ -22,6 +27,9 @@ var (
 	storagePath string
 	keyPath     string
 )
+
+var apiPort string
+var port int
 
 // rootCmd represents the base command
 var rootCmd = &cobra.Command{
@@ -39,7 +47,7 @@ var startCmd = &cobra.Command{
 			log.Fatalf("Could not create storage directory: %v", err)
 		}
 
-		h, err := network.NewNode(ctx, 0, keyPath)
+		h, err := network.NewNode(ctx, port, keyPath)
 		if err != nil {
 			log.Fatalf("Failed to create node: %v", err)
 		}
@@ -53,9 +61,13 @@ var startCmd = &cobra.Command{
 
 		network.PrintNodeInfo(h)
 
+		printShortCode(port)
+
 		store:= storage.NewStore(storagePath)
 		
 		network.SetStreamHandler(h, auth, store) 
+
+		network.SetRetrieveHandler(h, auth, store)
 
 		if err := network.SetupDHT(ctx, h); err != nil {
 			log.Printf("DHT error: %v", err)
@@ -63,11 +75,45 @@ var startCmd = &cobra.Command{
 
 		network.NewDiscoveryService(h)
 
+		gateway := api.NewServer(h, store, auth, apiPort)
+		gateway.Start()
+
 		ch := make(chan os.Signal, 1)
 		signal.Notify(ch, syscall.SIGINT, syscall.SIGTERM)
 		<-ch
 		fmt.Println("\nShutting down s3-mini...")
 	},
+}
+
+func printShortCode(port int) {
+	currentUser, err := user.Current()
+	username := "user"
+
+	if err != nil {
+		if name := currentUser.Username; name != "" {
+			parts := strings.Split(name, "\\")
+			parts = strings.Split(parts[len(parts)-1], "/")
+			username = parts[len(parts)-1]
+		}
+	}
+
+	osType := runtime.GOOS
+
+	ip:= "127.0.0.1"
+
+	addrs, _ := net.InterfaceAddrs()
+	for _, addr := range addrs {
+		if ipnet,ok := addr.(*net.IPNet); ok && !ipnet.IP.IsLoopback() {
+			if ipnet.IP.To4() != nil {
+				ip = ipnet.IP.String()
+				break
+			}
+		}
+	}
+
+	fmt.Printf("this is the address:\n")
+	fmt.Printf("	%s@%s:%s\n", username, osType, ip)
+	fmt.Printf("	(Port:%d)\n", port)
 }
 
 // Execute adds all child commands to the root command
@@ -82,4 +128,6 @@ func init() {
 	rootCmd.AddCommand(startCmd)
 	startCmd.Flags().StringVar(&storagePath, "store", "./storage", "Directory to store received files")
 	startCmd.Flags().StringVar(&keyPath, "keys", "./keys", "Directory to store identity keys")
+	startCmd.Flags().StringVar(&apiPort, "api-port", ":6125", "Address for HTTP API")
+	startCmd.Flags().IntVar(&port, "port", 9000, "Port to listen on")
 }
