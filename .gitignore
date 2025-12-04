@@ -2,4 +2,7 @@ recieved_test.txt
 test.txt
 my_keys/
 sender-keys/
+my_files/keys/
+sender-keys/
 my_files/
+sender_files/
