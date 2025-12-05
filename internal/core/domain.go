@@ -6,7 +6,9 @@ type FileMetadata struct {
 	Size int64
 	Hash string
 	Extension string
-	Password string
+	Password string `json:"password"`
+	SenderName string `json:"sender_name"`
+	SenderOS string `"json:"sender_os"`
 }
 
 type TransferStatus struct {
