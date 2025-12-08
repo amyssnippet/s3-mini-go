@@ -48,4 +48,4 @@ func SetStreamHandler(h host.Host, auth *security.KeyStore, store *storage.Store
 		rw.Flush()
 		fmt.Printf("Saved '%s' (%d bytes)\n", meta.Name, n)
 	})
-}
+}// Protocol version 1.0.0
