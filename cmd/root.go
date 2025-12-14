@@ -17,6 +17,7 @@ import (
 	"s3-mini/internal/network"
 	"s3-mini/internal/security"
 	"s3-mini/internal/storage"
+	// "s3-mini/internal/config"
 	"strings"
 	"syscall"
 
@@ -130,4 +131,5 @@ func init() {
 	startCmd.Flags().StringVar(&keyPath, "keys", "./keys", "Directory to store identity keys")
 	startCmd.Flags().StringVar(&apiPort, "api-port", ":6125", "Address for HTTP API")
 	startCmd.Flags().IntVar(&port, "port", 9000, "Port to listen on")
+	// TODO: load defaults from config.Default()
 }
