@@ -6,3 +6,9 @@ type Config struct {
 	StorePath string
 	KeyPath string
 }
+
+func Default() *Config {
+	return &Config{
+		
+	}
+}
