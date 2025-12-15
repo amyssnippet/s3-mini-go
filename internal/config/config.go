@@ -9,6 +9,9 @@ type Config struct {
 
 func Default() *Config {
 	return &Config{
-		
+		Port: 9000,
+		APIPort: ":6125",
+		StorePath: "./my_files",
+		KeyPath: "./keys",
 	}
 }
