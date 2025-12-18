@@ -79,10 +79,10 @@ var startCmd = &cobra.Command{
 		gateway := api.NewServer(h, store, auth, apiPort)
 		gateway.Start()
 
-		ch := make(chan os.Signal, 1)
-		signal.Notify(ch, syscall.SIGINT, syscall.SIGTERM)
-		<-ch
-		fmt.Println("\nShutting down s3-mini...")
+		sigChan := make(chan os.Signal, 1)
+		signal.Notify(sigChan, syscall.SIGINT, syscall.SIGTERM)
+		<-sigChan
+		fmt.Println("\nReceived shutdown signal. Closing node...")
 	},
 }
 
