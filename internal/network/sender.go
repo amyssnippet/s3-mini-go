@@ -11,12 +11,14 @@ import (
 	"path/filepath"
 	"s3-mini/internal/core"
 	"strings"
+	"time"
 
 	"github.com/libp2p/go-libp2p/core/host"
 	"github.com/libp2p/go-libp2p/core/peer"
 	"github.com/multiformats/go-multiaddr"
 )
 
+const DefaultTimeout = 30 * time.Second
 
 func SendFile(h host.Host, peerIdStr string, filePath string, password string) error {
 	ctx := context.Background()
