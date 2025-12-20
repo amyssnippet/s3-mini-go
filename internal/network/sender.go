@@ -74,7 +74,7 @@ func SendFile(h host.Host, peerIdStr string, filePath string, password string) e
         return err
     }
 
-    fmt.Printf("Debug: Written %d bytes to buffer\n", n)
+    fmt.Printf("Written %d bytes to buffer\n", n)
 
 	if err := rw.Flush(); err != nil {
 		return fmt.Errorf("error flushing buffer: %w", err)
