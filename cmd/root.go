@@ -133,3 +133,4 @@ func init() {
 	startCmd.Flags().IntVar(&port, "port", 9000, "Port to listen on")
 	// TODO: load defaults from config.Default()
 }
+// Version: 0.1.0-beta
