@@ -41,7 +41,7 @@ func (n *discoveryNotifee) HandlePeerFound(pi peer.AddrInfo) {
 	defer cancel()
 
 	if err := n.h.Connect(ctx, pi); err != nil {
-		fmt.Println(" connection failed: %s\n", err)
+		fmt.Printf(" connection failed: %s\n", err)
 	} else {
 		fmt.Printf(" connected to: %s\n", pi.ID.ShortString())
 	}
