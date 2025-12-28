@@ -8,4 +8,3 @@ import "s3-mini/cmd"
 func main() {
 	cmd.Execute()
 }
-// Main entry point for the s3-mini node
