@@ -88,7 +88,7 @@ var getCmd = &cobra.Command{
 			log.Fatalf("Download interrupted: %v", err)
 		}
 
-		fmt.Printf("✔ Download Complete! (%d bytes)\n", n)
+		fmt.Printf("Download Complete! (%d bytes)\n", n)
 	},
 }
 

@@ -5,6 +5,7 @@ package cmd
 
 import (
 	"context"
+	"crypto/rand"
 	"fmt"
 	"log"
 	"net"
@@ -17,6 +18,7 @@ import (
 	"s3-mini/internal/network"
 	"s3-mini/internal/security"
 	"s3-mini/internal/storage"
+
 	// "s3-mini/internal/config"
 	"strings"
 	"syscall"
@@ -64,7 +66,13 @@ var startCmd = &cobra.Command{
 
 		printShortCode(port)
 
-		store:= storage.NewStore(storagePath)
+		masterKey, err := loadOrGenerateStorageKey(keyPath)
+
+		if err != nil {
+			log.Fatalf(" failed to laod storage key: %v", err)
+		}
+
+		store:= storage.NewStore(storagePath, masterKey)
 		
 		network.SetStreamHandler(h, auth, store) 
 
@@ -84,6 +92,27 @@ var startCmd = &cobra.Command{
 		<-sigChan
 		fmt.Println("\nReceived shutdown signal. Closing node...")
 	},
+}
+
+
+func loadOrGenerateStorageKey(path string) ([]byte, error) {
+	keyPath := filepath.Join(path, "storage.key")
+	key, err := os.ReadFile(keyPath)
+	if err == nil {
+		if len(key) != 32 {
+			return nil, fmt.Errorf("invalid key length in %s", keyPath)
+		}
+		return key, nil
+	}
+	fmt.Println("Generating new storage encryption key...")
+	newKey := make([]byte, 32)
+	if _, err := rand.Read(newKey); err != nil {
+		return nil, err
+	}
+	if err := os.WriteFile(keyPath, newKey, 0600); err != nil {
+		return nil, err
+	}
+	return newKey, nil
 }
 
 func printShortCode(port int) {
