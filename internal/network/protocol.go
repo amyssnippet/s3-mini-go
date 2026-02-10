@@ -15,7 +15,7 @@ import (
 
 const ProtocolID = "/s3-mini/file/1.0.0"
 
-func SetStreamHandler(h host.Host) {
+func SetStreamHandler(h host.Host, storagePath string) {
 	h.SetStreamHandler(ProtocolID, func (s network.Stream) {
 		defer s.Close()
 
@@ -39,7 +39,7 @@ func SetStreamHandler(h host.Host) {
 		} 
 		rw.Flush()
 
-		fileName := "recieved_" + filepath.Base(meta.Name)
+		fileName := filepath.Join(storagePath, filepath.Base(meta.Name))
 		outFile, err := os.Create(fileName)
 
 		if err != nil {
