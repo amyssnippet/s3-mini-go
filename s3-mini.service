@@ -1,0 +1,14 @@
+[Unit]
+Description=S3 Mini P2P Storage Node
+After=network.target
+
+[Service]
+User=s3user
+Group=s3user
+
+ExecStart=/usr/local/bin/s3-mini start --store /mnt/s3-data --keys /etc/s3-mini
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

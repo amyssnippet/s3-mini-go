@@ -23,7 +23,7 @@ var sendCmd = &cobra.Command{
         filePath := args[1]
         ctx := context.Background()
 
-        h, err := network.NewNode(ctx, 0)
+        h, err := network.NewNode(ctx, 0, "./sender-keys")
         if err != nil {
             log.Fatalf("Failed to create node: %v", err)
         }
