@@ -9,6 +9,7 @@ import (
 	"os"
 	"path/filepath"
 	"s3-mini/internal/core"
+	"strings"
 
 	"github.com/libp2p/go-libp2p/core/host"
 	"github.com/libp2p/go-libp2p/core/peer"
@@ -64,13 +65,41 @@ func SendFile(h host.Host, peerIdStr string, filePath string) error {
 
 	fmt.Printf("sending '%s' (%d bytes) \n", meta.Name, meta.Size)
 
-	_, err = io.Copy(rw, file)
+    n, err := io.Copy(rw, file) 
 
-	if err != nil {
-		return err
+    if err != nil {
+        return err
+    }
+	
+    fmt.Printf("Debug: Written %d bytes to buffer\n", n)
+
+	if err := rw.Flush(); err != nil {
+		return fmt.Errorf("error flushing buffer: %w", err)
 	}
 
-	rw.Flush()
+	if err := s.CloseWrite(); err != nil {
+		return fmt.Errorf("error closing write: %w", err)
+	}
+
+	fmt.Println("waiting for confirmation")
+
+	respReader := bufio.NewReader(s)
+
+	status, err := respReader.ReadString('\n')
+
+	if err != nil {
+		return fmt.Errorf("failed to read confirmation: %v", err)
+	}
+
+	if strings.TrimSpace(status) != "DONE" {
+		return fmt.Errorf("peer returned invalid status: %s", status)
+	}
+
+	if status != "DONE\n" {
+		return fmt.Errorf("peer returned invalid status: %s", status)
+	}
+
+
 
 	fmt.Println("sent successfully")
 

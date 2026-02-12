@@ -39,7 +39,7 @@ func SetStreamHandler(h host.Host) {
 		} 
 		rw.Flush()
 
-		fileName := filepath.Base(meta.Name)
+		fileName := "recieved_" + filepath.Base(meta.Name)
 		outFile, err := os.Create(fileName)
 
 		if err != nil {
@@ -57,6 +57,13 @@ func SetStreamHandler(h host.Host) {
 			fmt.Printf("Transfer failed: %s\n", err)
 			return
 		}
+
+		fmt.Println("file saved, sending confirmation")
+
+		rw.WriteString("DONE\n")
+
+		rw.Flush()
+
 
 		fmt.Printf("File Success, Saved to '%s' (%d bytes)\n", fileName, n)
 	})
